@@ -15,12 +15,14 @@ object FormFillApp extends App {
     val acroForm = doc.getDocumentCatalog.getAcroForm
 
     for (order <- orders) {
-      acroForm.getField("name").setValue(order.name)
-      acroForm.getField("surname").setValue(order.surname)
-      acroForm.getField("dob").setValue(order.dob)
-      acroForm.getField("date").setValue(order.date)
+      for (orderField <- order.getClass.getDeclaredFields){
+        val fieldName = orderField.getName
+        val value = order.getClass.getMethod(fieldName).invoke(order).asInstanceOf[String]
 
-      doc.save(new File("order-form-" + order.id +".pdf"))
+        acroForm.getField(fieldName).setValue(value)
+      }
+
+      doc.save(new File("order-form-" + order.name +".pdf"))
     }
 
     doc.close()
@@ -32,8 +34,8 @@ object FormFillApp extends App {
     val listOfOrders= ListBuffer.empty[Order]
 
     for (row <- csvFile.getLines()){
-      val Array(id, name, surname, dob, date) = row.split(",").map(_.trim)
-      listOfOrders.append(new Order(id, name, surname, dob, date))
+      val Array(name, surname, dob, date) = row.split(",").map(_.trim)
+      listOfOrders.append(new Order(name, surname, dob, date))
     }
 
     listOfOrders.toList

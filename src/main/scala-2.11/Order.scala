@@ -1,2 +1,3 @@
-case class Order(id: String, name: String, surname: String, dob:String, date: String) {
+case class Order(name: String, surname: String, dob:String, date: String) {
+
 }
